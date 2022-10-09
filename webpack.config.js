@@ -22,7 +22,14 @@ module.exports = {
     compress: true,
     port: 9000,
     liveReload: true,
-    open: true,
-    mode: development,
   },
+  module: {
+    rules: [
+        {
+          test: /\.js$/,
+          exclude: /(node_modules)/,
+          use: ['babel-loader']
+        }
+    ]
+  }
 };
