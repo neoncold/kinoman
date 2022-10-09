@@ -15,4 +15,14 @@ module.exports = {
       patterns: [{from: "public"}],
     }),
   ],
+  devServer: {
+    static: {
+      directory: path.join(__dirname, 'build'),
+    },
+    compress: true,
+    port: 9000,
+    liveReload: true,
+    open: true,
+    mode: development,
+  },
 };
