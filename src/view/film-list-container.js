@@ -1,11 +1,14 @@
 import { createElement } from "../render";
 
+const isLoaded = true;
+const isLoading = false;
+
 const createFilmListContainer = () => (
-  `<section class="films">
-  <section class="films-list">
-    <h2 class="films-list__title visually-hidden">All movies. Upcoming</h2>
-    <div class="films-list__container"></div>
-  </section>
+`<section class="films-list">
+    <h2 class="films-list__title 
+    ${(isLoaded)  ? 'visually-hidden">All movies. Upcoming</h2>' 
+    : (isLoading) ? '>Loading...</h2>' 
+                  : '>There are no movies in our database</h2>'}
 </section>`
 );
 
