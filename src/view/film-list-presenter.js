@@ -12,8 +12,10 @@ export default class FilmListPresenter {
   filmListContainer = new FilmListContainer();
   filmListCardContainer = new FilmListCardContainer();
 
-  init = (renderPlace) => {
+  init = (renderPlace, cardFilmModel) => {
     this.renderPlace = renderPlace;
+    this.cardFilmModel = cardFilmModel;
+    this.filmCards = [...this.cardFilmModel.getCards()];
 
     render(new MainNav(), this.renderPlace);
     render(new MainSort(), this.renderPlace);
@@ -21,8 +23,8 @@ export default class FilmListPresenter {
     render(this.filmListContainer, this.filmListSectionContainer.getElement());
     render(this.filmListCardContainer, this.filmListContainer.getElement());
     
-    for (let i = 0; i < 5; i++) {
-      render(new FilmListCard(), this.filmListCardContainer.getElement());
+    for (let i = 0; i < this.filmCards.length; i++) {
+      render(new FilmListCard(this.filmCards[i]), this.filmListCardContainer.getElement());
     }
 
     render(new ShowMoreButton(), this.renderPlace)

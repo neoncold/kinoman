@@ -1,28 +1,31 @@
 import { createElement } from "../render";
 
-const createFilmListCard = () => (
+const createFilmListCard = (card) => (
   `<article class="film-card">
-    <h3 class="film-card__title">Sagebrush Trail</h3>
-    <p class="film-card__rating">3.2</p>
+    <h3 class="film-card__title">${card.film_info.title}</h3>
+    <p class="film-card__rating">${card.film_info.totalRating}</p>
     <p class="film-card__info">
-      <span class="film-card__year">1933</span>
-      <span class="film-card__duration">54m</span>
-      <span class="film-card__genre">Western</span>
+      <span class="film-card__year">${new Date(card.film_info.release.date).getFullYear()}</span>
+      <span class="film-card__duration">${card.film_info.runtime}</span>
+      <span class="film-card__genre">${card.film_info.genre}</span>
     </p>
-    <img src="./images/posters/sagebrush-trail.jpg" alt="" class="film-card__poster">
-    <p class="film-card__description">Sentenced for a murder he did not commit, John Brant escapes from prison determined to find the real killer. By chance Brant's narrow escap…</p>
-    <a class="film-card__comments">89 comments</a>
+    <img src="./images/posters/${card.film_info.poster}" alt="" class="film-card__poster">
+    <p class="film-card__description">${card.film_info.description.length > 140 ? card.film_info.description.slice(0,139) + "..." : card.film_info.description}</p>
+    <a class="film-card__comments">${card.comments.length} comments</a>
     <form class="film-card__controls">
-      <button class="film-card__controls-item button film-card__controls-item--add-to-watchlist film-card__controls-item--active">Add to watchlist</button>
-      <button class="film-card__controls-item button film-card__controls-item--mark-as-watched">Mark as watched</button>
-      <button class="film-card__controls-item button film-card__controls-item--favorite">Mark as favorite</button>
+      <button class="film-card__controls-item button film-card__controls-item--add-to-watchlist ${card.user_details.inWatchedList ? "film-card__controls-item--active" : ""}">Add to watchlist</button>
+      <button class="film-card__controls-item button film-card__controls-item--mark-as-watched ${card.user_details.alreadyWatched ? "film-card__controls-item--active" : ""}">Mark as watched</button>
+      <button class="film-card__controls-item button film-card__controls-item--favorite ${card.user_details.favorite ? "film-card__controls-item--active" : ""}">Mark as favorite</button>
     </form>
   </article>`
 );
 
 export default class FilmListCard {
+  constructor(card) {
+    this.card = card;
+  }
   getTemplate() {
-    return createFilmListCard();
+    return createFilmListCard(this.card);
   }
   getElement() {
     if (!this.element) {
