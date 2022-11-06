@@ -152,22 +152,29 @@ export default class PopupComponent {
     )
   }
 
-  getElement() {
-    if (this.element) {
-      return element;
+  getElement() { 
+    if (!this.element) {
+      this.element = createElement(this.getTemplate());
     }
-    return createElement(this.getTemplate())
+    return this.element;
   }
 
-  setHandler(handler) {
+  getCloseButton() {
+    return this.getElement().querySelector('.film-details__close-btn');
+  }
+
+  setClickHandler(handler) {
     this.handler = handler;
-
-    this.getElement()
-    .querySelector('.film-details__close-btn')
-    .addEventListener('click', handler(e))
+    this.getCloseButton().addEventListener('click', this.handler)
   }
+
+  // removeClickHandler() {
+  //   this.getCloseButton.removeEventListener('click', this.handler);
+  //   this.handler = null;
+  // }
 
   removeElement() {
     this.element = null;
+    
   }
 }

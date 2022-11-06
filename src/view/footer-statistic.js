@@ -1,14 +1,17 @@
 import { createElement } from "../render";
 
-const createFooterStatistic = () => (
+const createFooterStatistic = (totalCount) => (
   `<section class="footer__statistics">
-  <p>130 291 movies inside</p>
+  <p>${totalCount} movies inside</p>
   </section>`
 );
 
 export default class FooterStatistic {
+  constructor(totalCount) {
+    this.totalCount = totalCount;
+  }
   getTemplate() {
-    return createFooterStatistic();
+    return createFooterStatistic(this.totalCount);
   }
   getElement() {
     if (!this.element) {
