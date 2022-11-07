@@ -24,4 +24,35 @@ const generateContent = (data, count = 1) => {
   return arr.join(' ');
 };
 
-export {getRandomInteger, generateContent};
+const removeComponent = (element) => {
+  if (!element.element) {
+    return
+  }
+  element.element.remove();
+  element.removeElement();
+}
+
+const sortArrayByType = (type, array) => {
+  const sliceOfArray = array.slice();
+  switch (type) {
+    case 'Sort by date':
+      sliceOfArray.sort((a,b) => {
+        return b.film_info.release.date - a.film_info.release.date
+      });
+
+
+    break;
+
+    case 'Sort by rating':
+      sliceOfArray.sort((a,b) => {
+        return +((+b.film_info.totalRating - +a.film_info.totalRating).toFixed(1));
+      });
+    break;
+
+    default:
+      return array
+  }
+  return sliceOfArray;
+}
+
+export {getRandomInteger, generateContent, removeComponent, sortArrayByType};
