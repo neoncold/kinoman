@@ -1,6 +1,8 @@
 import { createElement } from "../render";
+import { monthArray } from "../utils.js"
 
-// Доделать длительность, жанры
+// По тз, нужно создать все попапы паралельно карточкам и 
+// навешивать обработчик для добавления и удаления попапа
 
 export default class PopupComponent {
   constructor(cardData) {
@@ -25,6 +27,18 @@ export default class PopupComponent {
       </p>
     </div>
   </li>`).join(`\n`);
+  }
+
+  getGenres(genres) {
+    return genres.split(" ").map((elem) => 
+    `<span class="film-details__genre">${elem}</span>`)
+    .join(`\n`);
+  }
+
+  getDate(date) {
+    const dateObj = new Date(date);
+    console.log(dateObj)
+    return `${dateObj.getDate()} ${monthArray[dateObj.getMonth()]} ${dateObj.getFullYear()}`
   }
 
   getTemplate() {
@@ -70,8 +84,8 @@ export default class PopupComponent {
             </tr>
             <tr class="film-details__row">
               <td class="film-details__term">Release Date</td>
-              <td class="film-details__cell">${new Date(cardData.film_info.release.date)}</td>
-            </tr>
+              <td class="film-details__cell">${this.getDate(cardData.film_info.release.date)}</td>
+            </tr> 
             <tr class="film-details__row">
               <td class="film-details__term">Runtime</td>
               <td class="film-details__cell">${cardData.film_info.runtime}</td>
@@ -83,9 +97,8 @@ export default class PopupComponent {
             <tr class="film-details__row">
               <td class="film-details__term">Genres</td>
               <td class="film-details__cell">
-                <span class="film-details__genre">FIx this</span>
-                <span class="film-details__genre">Fix-this</span>
-                <span class="film-details__genre">Fix-this</span></td>
+                ${this.getGenres(this.cardData.film_info.genre)}
+              </td>
             </tr>
           </table>
   

@@ -55,4 +55,5 @@ const sortArrayByType = (type, array) => {
   return sliceOfArray;
 }
 
-export {getRandomInteger, generateContent, removeComponent, sortArrayByType};
+const monthArray = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+export {getRandomInteger, generateContent, removeComponent, sortArrayByType, monthArray};
