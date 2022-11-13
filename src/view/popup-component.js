@@ -1,11 +1,12 @@
-import { createElement } from "../render";
 import { monthArray } from "../utils.js"
+import Abstract from "./abstract";
 
 // По тз, нужно создать все попапы паралельно карточкам и 
 // навешивать обработчик для добавления и удаления попапа
 
-export default class PopupComponent {
+export default class PopupComponent extends Abstract{
   constructor(cardData) {
+    super();
     this.cardData = cardData;
   }
 
@@ -37,7 +38,6 @@ export default class PopupComponent {
 
   getDate(date) {
     const dateObj = new Date(date);
-    console.log(dateObj)
     return `${dateObj.getDate()} ${monthArray[dateObj.getMonth()]} ${dateObj.getFullYear()}`
   }
 
@@ -165,29 +165,15 @@ export default class PopupComponent {
     )
   }
 
-  getElement() { 
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-    return this.element;
-  }
-
   getCloseButton() {
     return this.getElement().querySelector('.film-details__close-btn');
   }
 
   setClickHandler(handler) {
-    this.handler = handler;
-    this.getCloseButton().addEventListener('click', this.handler)
+    this.getCloseButton().addEventListener('click', handler);
   }
 
-  // removeClickHandler() {
-  //   this.getCloseButton.removeEventListener('click', this.handler);
-  //   this.handler = null;
-  // }
-
-  removeElement() {
-    this.element = null;
-    
+  removeClickHandler(handler) {
+    this.getCloseButton().removeEventListener('click', handler);
   }
 }

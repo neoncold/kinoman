@@ -1,4 +1,4 @@
-import { createElement } from "../render";
+import Abstract from "./abstract";
 
 const createFilmNoUserLevel = () => (
   `<section class="statistic">
@@ -43,17 +43,8 @@ const createFilmNoUserLevel = () => (
   </section>`
 );
 
-export default class FilmListNoUserLevel {
+export default class FilmListNoUserLevel extends Abstract{
   getTemplate() {
     return createFilmNoUserLevel();
-  }
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-    return this.element;
-  }
-  removeElement() {
-    this.element = null;
   }
 }

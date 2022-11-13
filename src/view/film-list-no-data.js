@@ -1,4 +1,4 @@
-import { createElement } from "../render";
+import Abstract from "./abstract";
 
 const createFilmListNoData = () => (
   `<section class="films">
@@ -7,17 +7,8 @@ const createFilmListNoData = () => (
   </section>`
 );
 
-export default class FilmListNoData {
+export default class FilmListNoData extends Abstract{
   getTemplate() {
     return createFilmListNoData();
-  }
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-    return this.element;
-  }
-  removeElement() {
-    this.element = null;
   }
 }

@@ -1,14 +1,13 @@
-import {createElement} from '../render.js';
-
-let count;
+import Abstract from './abstract.js';
 
 const numberOfAlreadyWatched = (arr) => {
-  if (count) return count;
+  let count;
   count = arr.reduce((acc,curr) => 
   curr.user_details.alreadyWatched ? ++acc : acc, 0)
   
   return count;
 }
+
 const createProfileButton = (cardsArray) => (
   `<section class="header__profile profile">
   <p class="profile__rating">${
@@ -23,22 +22,12 @@ const createProfileButton = (cardsArray) => (
   </section>`
 );
 
-export default class ProfileButton {
+export default class ProfileButton extends Abstract {
   constructor(cardsArray) {
+    super();
     this.cardsArray = cardsArray;
   }
   getTemplate() {
     return createProfileButton(this.cardsArray);
-  }
-
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
   }
 };

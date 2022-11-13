@@ -1,4 +1,4 @@
-import { createElement } from "../render";
+import Abstract from "./abstract";
 
 const createStatisticView = () => (
 `<p class="statistic__rank">
@@ -8,17 +8,8 @@ const createStatisticView = () => (
 </p>`
 );
 
-export default class StatisticView {
+export default class StatisticView extends Abstract{
   getTemplate() {
     return createStatisticView();
-  }
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-    return this.element;
-  }
-  removeElement() {
-    this.element = null;
   }
 }

@@ -1,38 +1,39 @@
+import ProfileButton from './profile-button.js';
+import FooterStatistic from './footer-statistic.js';
 import MainNav from './main-nav.js';
 import MainSort from './main-sort.js';
-import FilmListCard from './film-list-card.js';
 import ShowMoreButton from './show-more-button.js';
 import FilmListLoading from './film-list-loading.js';
 import FilmListNoData from './film-list-no-data.js';
 import FilmList from './film-list.js';
-import PopupComponent from './popup-component.js';
 import FilmListPresenter from './film-list-presenter.js';
 import { render } from '../render.js';
 import { removeComponent, sortArrayByType } from '../utils.js';
-import { RENDER_CARD_COUNT } from '../config.js'
 
-/* 
-не работает удаление евент листнера так как это стрелочная функция
-ещё нужно поправить жанры в попапе details
- */
 
 export default class PagePresenter {
   
-  init = (renderPlace, filmsArray) => {
+  render = (renderPlace, filmsArray) => {
     this.renderPlace = renderPlace;
     this.filmsArray = filmsArray;
-    this.MainNav = new MainNav(this.filmsArray);
-    this.MainSort = new MainSort(this.filmsArray);
+    this.mainNav = new MainNav(this.filmsArray);
+    this.mainSort = new MainSort(this.filmsArray);
     this.filmList = new FilmList();
     this.filmListPresenter = new FilmListPresenter();
     this.filmListLoading = new FilmListLoading();
     this.filmListNoData = new FilmListNoData();
     this.showMoreButton = new ShowMoreButton();
     
+    // Нахожение и рендеринг аватарки и статистики футера
+    const siteHeaderElement = document.querySelector('.header');
+    const siteFooterStatisticContainer = document.querySelector('.footer__statistics');
+
+    render(new ProfileButton(this.filmsArray), siteHeaderElement);
+    render(new FooterStatistic(this.filmsArray.length), siteFooterStatisticContainer);
 
     // рендер навигации, сортировочных кнопок, индикации загрузки
-    render(this.MainNav, this.renderPlace);
-    render(this.MainSort, this.renderPlace);
+    render(this.mainNav, this.renderPlace);
+    render(this.mainSort, this.renderPlace);
     render(this.filmListLoading, this.renderPlace);
 
     // удаление индикации загрузки если есть данные и рендер сообщения об отсутствии фильмов если нет данных
@@ -44,8 +45,6 @@ export default class PagePresenter {
       return;
     }      
     
-    // добавление логики работы кнопок сортировки
-    const mainSort = this.MainSort.getElement();
     
     // рендер контейнера для карточек фильмов
     render(this.filmList, this.renderPlace);
@@ -54,7 +53,7 @@ export default class PagePresenter {
     
     this.filmListPresenter.init(filmListContainer, this.filmsArray)
     // открисовка кнопки showMore
-    if (filmsArray.length > 5) {
+    if (this.filmsArray.length > 5) {
       render(this.showMoreButton, this.renderPlace);
       
       // добавление логики работы кнопки showMore
@@ -62,6 +61,7 @@ export default class PagePresenter {
         
         this.filmListPresenter.init();
         
+        // Удалить showMoreButton если фильмы закончились
         if (filmListContainer.children.length == filmsArray.length) {
           removeComponent(this.showMoreButton);
         }
@@ -69,51 +69,28 @@ export default class PagePresenter {
     }
     
     // Логика работы кнопок сортировки
-    
-    mainSort.addEventListener('click', (e) => {
-      e.preventDefault();
-      const pressedButton = e.target.closest('.sort__button');
-      // мимо кнопки
-      if (!pressedButton) return;
-      // повторное нажатие
-      if (pressedButton.classList.contains('sort__button--active')) return;
-      
-      // управление классом активной кнопки
-      const sortButtons = mainSort.querySelectorAll('.sort__button');
-      sortButtons.forEach((elem) => {
-        elem.classList.remove('sort__button--active')});
-      pressedButton.classList.add('sort__button--active');
-      
-      // Отчистка контента
+    const sortingFilmsArray = (sortingType) => {
       filmListContainer.innerHTML = '';
+      let sortedArray = this.filmsArray.slice();
 
-      // тип сортировки
-      const sortType = `${pressedButton.innerHTML}`;
+      switch (sortingType) {
+        case 'default':
+          sortedArray = this.filmsArray;
+        break;
+        case 'date':
+          sortedArray.sort((a,b) => b.film_info.release.date - a.film_info.release.date );
+        break;
 
-      // функция рендера отсортированного массива
+        case 'rating':
+          sortedArray.sort((a,b) => (+b.film_info.totalRating - +a.film_info.totalRating).toFixed(1));    
+        break;
+      }
 
-      const sortedArray = sortArrayByType(sortType, this.filmsArray);
       this.filmListPresenter.init(this.filmListContainer, sortedArray);
-      
-    });
-
-    // добавление логики открытия и закрытия попапа
-    filmListContainer.addEventListener('click', (e) => {
-      const targetCard = e.target.closest('.film-card');
-      
-      if (!targetCard) return;
-      
-      const targetCardIndex = Array.from(filmListContainer.children).indexOf(targetCard);
-      const filmInfo = filmsArray[targetCardIndex];
-      const popup = new PopupComponent(filmInfo);
-      
-      render(popup, document.body);
-      
-      popup.setClickHandler(() => {
-        // popup.removeClickHandler();
-        removeComponent(popup);
-      })
-    });
+    }
+    
+    // добавление обработчика кнопкам сортировки
+    this.mainSort.setClickHandler(sortingFilmsArray)
 
 
   };

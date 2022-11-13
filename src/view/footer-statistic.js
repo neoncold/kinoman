@@ -1,4 +1,4 @@
-import { createElement } from "../render";
+import Abstract from "./abstract";
 
 const createFooterStatistic = (totalCount) => (
   `<section class="footer__statistics">
@@ -6,20 +6,12 @@ const createFooterStatistic = (totalCount) => (
   </section>`
 );
 
-export default class FooterStatistic {
+export default class FooterStatistic extends Abstract{
   constructor(totalCount) {
+    super();
     this.totalCount = totalCount;
   }
   getTemplate() {
     return createFooterStatistic(this.totalCount);
-  }
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-    return this.element;
-  }
-  removeElement() {
-    this.element = null;
   }
 }

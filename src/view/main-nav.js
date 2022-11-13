@@ -1,4 +1,4 @@
-import { createElement } from "../render";
+import Abstract from "./abstract";
 
 const createMainNav = (cardsArray) => (
   `<nav class="main-navigation">
@@ -12,20 +12,12 @@ const createMainNav = (cardsArray) => (
   </nav>`
 );
 
-export default class MainNav {
+export default class MainNav extends Abstract{
   constructor(cardsArray) {
+    super();
     this.cardsArray = cardsArray;
   }
   getTemplate() {
     return createMainNav(this.cardsArray);
-  }
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-    return this.element;
-  }
-  removeElement() {
-    this.element = null;
   }
 }

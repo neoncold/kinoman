@@ -1,4 +1,4 @@
-import { createElement } from "../render";
+import Abstract from "./abstract";
 
 const createFilmListCard = (card) => (
   `<article class="film-card">
@@ -20,20 +20,16 @@ const createFilmListCard = (card) => (
   </article>`
 );
 
-export default class FilmListCard {
+export default class FilmListCard extends Abstract {
   constructor(card) {
+    super();
     this.card = card;
   }
   getTemplate() {
     return createFilmListCard(this.card);
   }
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-    return this.element;
-  }
-  removeElement() {
-    this.element = null;
+
+  setClickHandler(handler) {
+    this.getElement().addEventListener('click', handler)
   }
 }
