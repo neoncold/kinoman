@@ -1,4 +1,4 @@
-const AMOUNT_FILMS = 11;
+const AMOUNT_FILMS = 3;
 const RENDER_CARD_COUNT = 5;
 
 export { AMOUNT_FILMS, RENDER_CARD_COUNT}

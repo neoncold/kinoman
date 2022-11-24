@@ -6,29 +6,58 @@ import ShowMoreButton from './show-more-button.js';
 import FilmListLoading from './film-list-loading.js';
 import FilmListNoData from './film-list-no-data.js';
 import FilmList from './film-list.js';
-import FilmListPresenter from './film-list-presenter.js';
+// import FilmListPresenter from './film-list-presenter.js';
 import { render } from '../render.js';
-import { removeComponent, sortArrayByType } from '../utils.js';
+import { removeComponent } from '../utils.js';
+import MovieController from './movie-controller.js';
+import { RENDER_CARD_COUNT } from '../config.js';
 
+/* 
+нужно доделать обновление компонентов звания профиля,
+а так же навигационные ярлычки, посмотреть баги, а потом
+дальше по заданию
+*/
 
 export default class PagePresenter {
-  
-  render = (renderPlace, filmsArray) => {
+  constructor(renderPlace) {
+    this._onDataChange = this._onDataChange.bind(this);
+    this._onViewChange = this._onViewChange.bind(this);
+    this._filmsList = [];
     this.renderPlace = renderPlace;
-    this.filmsArray = filmsArray;
-    this.mainNav = new MainNav(this.filmsArray);
-    this.mainSort = new MainSort(this.filmsArray);
     this.filmList = new FilmList();
-    this.filmListPresenter = new FilmListPresenter();
+    this.filmListContainer = this.filmList.getElement().querySelector('.films-list__container');
     this.filmListLoading = new FilmListLoading();
     this.filmListNoData = new FilmListNoData();
     this.showMoreButton = new ShowMoreButton();
-    
+    this.mainSort = new MainSort();
+
+  }
+  _onDataChange(oldData, newData) {
+   const index = this._filmsList.findIndex((elem) => elem.film === oldData);
+   if (index !== -1) {
+    this._filmsList[index].film = newData;
+    this.filmsArray[index] = newData;
+
+    this._filmsList[index].updateComponents(this._filmsList[index].film);
+    this.mainNav.rerender();
+    this.profileButton.rerender();
+   }
+  }
+
+  _onViewChange() {
+    this._filmsList.forEach((film) => film.setDefaultView())
+  }
+
+  render = (filmsArray) => {
+    this.filmsArray = filmsArray;
+    this.mainNav = new MainNav(this.filmsArray);
+    this.profileButton = new ProfileButton(this.filmsArray);
+
     // Нахожение и рендеринг аватарки и статистики футера
     const siteHeaderElement = document.querySelector('.header');
     const siteFooterStatisticContainer = document.querySelector('.footer__statistics');
 
-    render(new ProfileButton(this.filmsArray), siteHeaderElement);
+    render(this.profileButton, siteHeaderElement);
     render(new FooterStatistic(this.filmsArray.length), siteFooterStatisticContainer);
 
     // рендер навигации, сортировочных кнопок, индикации загрузки
@@ -39,38 +68,41 @@ export default class PagePresenter {
     // удаление индикации загрузки если есть данные и рендер сообщения об отсутствии фильмов если нет данных
     if (filmsArray.length) {
       removeComponent(this.filmListLoading);
+       // рендер контейнера для карточек фильмов
+      render(this.filmList, this.renderPlace);
     } else {
+      // Если нет фильмов
       removeComponent(this.filmListLoading);
       render(this.filmListNoData, this.renderPlace);
       return;
     }      
-    
-    
-    // рендер контейнера для карточек фильмов
-    render(this.filmList, this.renderPlace);
-    
-    const filmListContainer = this.filmList.getElement().querySelector('.films-list__container');
-    
-    this.filmListPresenter.init(filmListContainer, this.filmsArray)
-    // открисовка кнопки showMore
-    if (this.filmsArray.length > 5) {
-      render(this.showMoreButton, this.renderPlace);
+
+    //Рендер первых карточек фильмов
+    if (this.filmsArray.length > RENDER_CARD_COUNT) {
+      //Рендерим устан. кол-во карточек если хватает
+      this.renderFilms(this.filmsArray.slice(0, RENDER_CARD_COUNT), this.filmListContainer);
+      render(this.showMoreButton, this.filmListContainer, 'afterend');
       
-      // добавление логики работы кнопки showMore
-      this.showMoreButton.getElement().addEventListener('click', () => {
-        
-        this.filmListPresenter.init();
+      const showMoreHandler = () => {
+        // отрисовка фиксированного колличества фильмов или остатка
+        this.renderFilms(this.filmsArray, this.filmListContainer);
         
         // Удалить showMoreButton если фильмы закончились
-        if (filmListContainer.children.length == filmsArray.length) {
+        if (this.filmListContainer.children.length == filmsArray.length) {
           removeComponent(this.showMoreButton);
         }
-      });
+      }
+
+      // добавление логики работы кнопки showMore ИСПРАВИТЬ
+      this.showMoreButton.setClickHandler(showMoreHandler);
+    } else {
+      // если в массиве меньше REBDER_CARD_COUNT рендер всех
+      this.renderFilms(this.filmsArray.slice(), this.filmListContainer);
     }
     
     // Логика работы кнопок сортировки
     const sortingFilmsArray = (sortingType) => {
-      filmListContainer.innerHTML = '';
+      this.filmListContainer.innerHTML = '';
       let sortedArray = this.filmsArray.slice();
 
       switch (sortingType) {
@@ -86,12 +118,28 @@ export default class PagePresenter {
         break;
       }
 
-      this.filmListPresenter.init(this.filmListContainer, sortedArray);
+      this.renderFilms(sortedArray, this.filmListContainer);
+      if (!this.showMoreButton._element && this.filmListContainer.children.length > RENDER_CARD_COUNT) {
+        render(this.showMoreButton, this.filmListContainer, 'afterend');
+        this.showMoreButton.rerender();
+      }
+      //и проверить слетают ли обработчики
     }
     
     // добавление обработчика кнопкам сортировки
     this.mainSort.setClickHandler(sortingFilmsArray)
-
-
   };
+
+  renderFilms(filmsArray, container) {
+    // колличество существующих карточек
+    const existingAmount = this.filmListContainer.children.length;
+    // Оставшееся колличество или RENDER_CARD_COUNT;
+    const amountToRender = existingAmount + Math.min(RENDER_CARD_COUNT, (filmsArray.length - existingAmount))
+    const films = filmsArray.slice(existingAmount, amountToRender)
+    for (const film of films ) {
+      const movieController = new MovieController(container, this._onDataChange, this._onViewChange);
+      this._filmsList.push(movieController);
+      movieController.render(film);
+    }
+  }
 }

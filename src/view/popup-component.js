@@ -115,7 +115,7 @@ export default class PopupComponent extends Abstract{
         <input type="checkbox" class="film-details__control-input visually-hidden" id="watched" name="watched" ${cardData.user_details.alreadyWatched ? "checked" : ""}>
         <label for="watched" class="film-details__control-label film-details__control-label--watched">Already watched</label>
   
-        <input type="checkbox" class="film-details__control-input visually-hidden" id="favorite" name="favorite" ${cardData.user_details.inWatchedList ? "checked" : ""}>
+        <input type="checkbox" class="film-details__control-input visually-hidden" id="favorite" name="favorite" ${cardData.user_details.favorite ? "checked" : ""}>
         <label for="favorite" class="film-details__control-label film-details__control-label--favorite">Add to favorites</label>
       </section>
     </div>
@@ -129,29 +129,31 @@ export default class PopupComponent extends Abstract{
             </ul>
     
             <div class="film-details__new-comment">
-              <div for="add-emoji" class="film-details__add-emoji-label"></div>
-    
+              <div for="add-emoji" class="film-details__add-emoji-label">
+              ${this.emoji ? `<img src="images/emoji/${this.emoji}.png" width="55" height="55" alt="emoji-${this.emoji}">` : ``}
+              </div>
+
               <label class="film-details__comment-label">
                 <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment"></textarea>
               </label>
     
               <div class="film-details__emoji-list">
-                <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-smile" value="smile">
+                <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-smile" value="smile" ${this.emoji == `smile` ? `checked` : ``}>
                 <label class="film-details__emoji-label" for="emoji-smile">
                   <img src="./images/emoji/smile.png" width="30" height="30" alt="emoji">
                 </label>
     
-                <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-sleeping" value="sleeping">
+                <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-sleeping" value="sleeping" ${this.emoji == `sleeping` ? `checked` : ``}>
                 <label class="film-details__emoji-label" for="emoji-sleeping">
                   <img src="./images/emoji/sleeping.png" width="30" height="30" alt="emoji">
                 </label>
     
-                <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-puke" value="puke">
+                <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-puke" value="puke" ${this.emoji == `puke` ? `checked` : ``}>
                 <label class="film-details__emoji-label" for="emoji-puke">
                   <img src="./images/emoji/puke.png" width="30" height="30" alt="emoji">
                 </label>
     
-                <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-angry" value="angry">
+                <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-angry" value="angry" ${this.emoji == `puke` ? `checked` : ``}>
                 <label class="film-details__emoji-label" for="emoji-angry">
                   <img src="./images/emoji/angry.png" width="30" height="30" alt="emoji">
                 </label>
@@ -164,16 +166,25 @@ export default class PopupComponent extends Abstract{
     `
     )
   }
-
-  getCloseButton() {
-    return this.getElement().querySelector('.film-details__close-btn');
+  _subscribeOnEvents() {
+    this.onCloseClick();
+    this.onPopupControlClick();
+    this.onClickEmoji();
   }
 
-  setClickHandler(handler) {
-    this.getCloseButton().addEventListener('click', handler);
+  onPopupControlClick(handler = this._onPopupControlClick) {
+    this._onPopupControlClick = handler;
+    this.getElement().querySelectorAll('.film-details__control-input').forEach((elem) => elem.addEventListener('click', this._onPopupControlClick))
   }
 
-  removeClickHandler(handler) {
-    this.getCloseButton().removeEventListener('click', handler);
+
+  onCloseClick(handler = this._closeClickHandler) {
+    this._closeClickHandler = handler;
+    this.getElement().querySelector('.film-details__close-btn').addEventListener('click', handler);
+  }
+
+  onClickEmoji(handler = this._onClickEmojiHandler) {
+    this._onClickEmojiHandler = handler;
+    this.getElement().querySelectorAll('.film-details__emoji-item').forEach((elem) => elem.addEventListener('click', this._onClickEmojiHandler))
   }
 }

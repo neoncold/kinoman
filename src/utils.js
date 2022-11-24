@@ -25,6 +25,7 @@ const generateContent = (data, count = 1) => {
 };
 
 const removeComponent = (element) => {
+  if (!element) return;
   if (!element._element) {
     return
   }

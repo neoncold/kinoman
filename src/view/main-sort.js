@@ -27,6 +27,7 @@ export default class MainSort extends Abstract {
     this.getElement().addEventListener('click', (evt) => {
       evt.preventDefault();
       const sortButton = evt.target.closest('.sort__button')
+      if (!sortButton) return;
 
       if (sortButton.classList.contains('.sort__button--active')) return;
 
