@@ -1,44 +1,21 @@
-import { monthArray } from "../utils.js"
+import { formatDuration, formatDate, humanizeDate } from "../utils.js"
 import Abstract from "./abstract";
 
-// По тз, нужно создать все попапы паралельно карточкам и 
-// навешивать обработчик для добавления и удаления попапа
+
 
 export default class PopupComponent extends Abstract{
   constructor(cardData) {
     super();
     this.cardData = cardData;
+    this.commentMessage = ``;
+    this.onTyppingNewMessageHandler = null;
   }
 
-  
-  renderComments(comments) {
-    const sortedComments = comments.slice().sort((a,b) => a.date - b.date);
-
-    return sortedComments.map((comment) => `
-  <li class="film-details__comment">
-    <span class="film-details__comment-emoji">
-      <img src="./images/emoji/${comment.emotion}.png" width="55" height="55" alt="emoji-${comment.emotion}">
-    </span>
-    <div>
-      <p class="film-details__comment-text">${comment.comment}</p>
-      <p class="film-details__comment-info">
-        <span class="film-details__comment-author">${comment.author}</span>
-        <span class="film-details__comment-day">${new Date(comment.date)}</span>
-        <button class="film-details__comment-delete">Delete</button>
-      </p>
-    </div>
-  </li>`).join(`\n`);
-  }
 
   getGenres(genres) {
     return genres.split(" ").map((elem) => 
     `<span class="film-details__genre">${elem}</span>`)
     .join(`\n`);
-  }
-
-  getDate(date) {
-    const dateObj = new Date(date);
-    return `${dateObj.getDate()} ${monthArray[dateObj.getMonth()]} ${dateObj.getFullYear()}`
   }
 
   getTemplate() {
@@ -84,11 +61,11 @@ export default class PopupComponent extends Abstract{
             </tr>
             <tr class="film-details__row">
               <td class="film-details__term">Release Date</td>
-              <td class="film-details__cell">${this.getDate(cardData.film_info.release.date)}</td>
+              <td class="film-details__cell">${formatDate(cardData.film_info.release.date)}</td>
             </tr> 
             <tr class="film-details__row">
               <td class="film-details__term">Runtime</td>
-              <td class="film-details__cell">${cardData.film_info.runtime}</td>
+              <td class="film-details__cell">${formatDuration(cardData.film_info.runtime)}</td>
             </tr>
             <tr class="film-details__row">
               <td class="film-details__term">Country</td>
@@ -125,7 +102,7 @@ export default class PopupComponent extends Abstract{
             <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${cardData.comments.length}</span></h3>
     
             <ul class="film-details__comments-list">
-              ${this.renderComments(cardData.comments)}
+              
             </ul>
     
             <div class="film-details__new-comment">
@@ -153,7 +130,7 @@ export default class PopupComponent extends Abstract{
                   <img src="./images/emoji/puke.png" width="30" height="30" alt="emoji">
                 </label>
     
-                <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-angry" value="angry" ${this.emoji == `puke` ? `checked` : ``}>
+                <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-angry" value="angry" ${this.emoji == `angry` ? `checked` : ``}>
                 <label class="film-details__emoji-label" for="emoji-angry">
                   <img src="./images/emoji/angry.png" width="30" height="30" alt="emoji">
                 </label>
@@ -166,17 +143,18 @@ export default class PopupComponent extends Abstract{
     `
     )
   }
+
   _subscribeOnEvents() {
     this.onCloseClick();
     this.onPopupControlClick();
     this.onClickEmoji();
+    this.onTyppingNewMessage();
   }
 
   onPopupControlClick(handler = this._onPopupControlClick) {
     this._onPopupControlClick = handler;
     this.getElement().querySelectorAll('.film-details__control-input').forEach((elem) => elem.addEventListener('click', this._onPopupControlClick))
   }
-
 
   onCloseClick(handler = this._closeClickHandler) {
     this._closeClickHandler = handler;
@@ -186,5 +164,15 @@ export default class PopupComponent extends Abstract{
   onClickEmoji(handler = this._onClickEmojiHandler) {
     this._onClickEmojiHandler = handler;
     this.getElement().querySelectorAll('.film-details__emoji-item').forEach((elem) => elem.addEventListener('click', this._onClickEmojiHandler))
+  }
+
+  onTyppingNewMessage(handler = this.onTyppingNewMessageHandler) {
+    this.onTyppingNewMessageHandler = handler;
+    const textArea = this.getElement().querySelector('.film-details__comment-input');
+    
+    textArea.addEventListener('focus', () => textArea.addEventListener('keypress', handler));
+    textArea.addEventListener('blur', () => textArea.removeEventListener('keypress', handler));
+
+    textArea.focus();
   }
 }

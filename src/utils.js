@@ -1,3 +1,5 @@
+import moment from "moment";
+
 const getRandomInteger = (from = 0, to = 1) => {
   const lower = Math.ceil(Math.min(from,to));
   const upper = Math.floor(Math.max(from,to));
@@ -31,7 +33,45 @@ const removeComponent = (element) => {
   }
   element._element.remove();
   element.removeElement();
-}
+};
 
-const monthArray = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
-export {getRandomInteger, generateContent, removeComponent, monthArray};
+const formatDuration = (minutes) => {
+  const ms = Math.floor(minutes * 60000 - 10800000)
+  return moment(ms).format('H:mm')
+};
+
+const formatDate = (date) => {
+  return moment(date).format('DD MMMM YYYY')
+};
+
+const humanizeDate = (date) => {
+  const newDate = Date.now();
+  const ms = newDate - Date.parse(date) + 10800000;
+  return moment.duration(ms, 'milliseconds').humanize();
+};
+
+const FilterTypes = {
+  DEFAULT: 'all',
+  WATCHLIST: 'watchlist',
+  HISTORY: 'history',
+  FAVORITES: 'favorites',
+};
+
+const SortTypes = {
+  DEFAULT: 'default',
+  DATE: 'byDate',
+  RATING: 'byRating',
+};
+
+
+
+export {
+  getRandomInteger, 
+  generateContent, 
+  removeComponent, 
+  formatDuration, 
+  formatDate, 
+  humanizeDate, 
+  FilterTypes, 
+  SortTypes,
+};

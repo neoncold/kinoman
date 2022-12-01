@@ -43,29 +43,33 @@ const mocksData = {
 // };
 
 const comments = [{
-  id: '',
+  id: '0',
   author: "fan",
   comment: "a film that changed my life, a true masterpiece, post-credit scene was just amazing omg.",
-  date: "1667403151171",
+  date: "2019-05-11T16:12:32.554Z",
   emotion: "smile",
 },{
-  id: '',
+  id: '1',
   author: "hater",
   comment: "a film that changed my life, a true masterpiece, post-credit scene was just amazing omg.",
-  date: "1667403143404",
+  date: "2020-05-11T16:12:32.554Z",
   emotion: "angry",
 },{
-  id: '',
+  id: '2',
   author: "jesus",
   comment: "a film that changed my life, a true masterpiece, post-credit scene was just amazing omg.",
-  date: "1667403114940",
+  date: "2022-11-24T15:40:32.554Z",
   emotion: "sleeping",
 }];
+
+let currentId = 1;
+
+const releases = ["2011-05-11T00:00:00.000Z","2012-05-11T00:00:00.000Z","2013-05-11T00:00:00.000Z","2014-05-11T00:00:00.000Z","2015-05-11T00:00:00.000Z","2016-05-11T00:00:00.000Z"]
 
 export const generateMocks = (count) => {
 
   return {
-    id: getRandomInteger(0, 10),
+    id: currentId++,
     comments: comments,
     film_info: {
       age: `${getRandomInteger(0,18)}`,
@@ -78,9 +82,9 @@ export const generateMocks = (count) => {
       actors: generateContent(mocksData.film_info.actors, getRandomInteger(1,3)),
       release:  {
         country: generateContent(mocksData.film_info.release.country),
-        date: getRandomInteger(0, Date.now()),
+        date: generateContent(releases, 1),
       }, 
-      runtime: `${getRandomInteger(1,2)}h ${getRandomInteger(0,59)}m`,
+      runtime: `${getRandomInteger(50, 120)}`,
       genre: generateContent(mocksData.film_info.genre, getRandomInteger(1,3)),
       description: generateContent(mocksData.film_info.description, getRandomInteger(1,5)),
     },

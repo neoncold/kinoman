@@ -1,12 +1,16 @@
+import { formatDuration } from "../utils";
 import Abstract from "./abstract";
+import moment from "moment";
+
+
 
 const createFilmListCard = (card) => (
   `<article class="film-card">
     <h3 class="film-card__title">${card.film_info.title}</h3>
     <p class="film-card__rating">${card.film_info.totalRating}</p>
     <p class="film-card__info">
-      <span class="film-card__year">${new Date(card.film_info.release.date).getFullYear()}</span>
-      <span class="film-card__duration">${card.film_info.runtime}</span>
+      <span class="film-card__year">${moment(card.film_info.release.date).format('YYYY')}</span>
+      <span class="film-card__duration">${formatDuration(card.film_info.runtime)}</span>
       <span class="film-card__genre">${card.film_info.genre}</span>
     </p>
     <img src="./images/posters/${card.film_info.poster}" alt="" class="film-card__poster">
@@ -37,7 +41,7 @@ export default class FilmListCard extends Abstract {
 
   onFilmCardControlClick(handler = this._onFilmCardControlClick) {
     this._onFilmCardControlClick = handler;
-    this.getElement().querySelectorAll('.film-card__controls-item').forEach((elem) => elem.addEventListener('click', this._onFilmCardControlClick))
+    this.getElement().querySelector('.film-card__controls').addEventListener('click', this._onFilmCardControlClick)
   }
 
   _subscribeOnEvents() {

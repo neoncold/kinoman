@@ -1,4 +1,5 @@
 const path = require('path');
+const MomentLocalesPlugin = require(`moment-locales-webpack-plugin`);
 const CopyPlugin = require('copy-webpack-plugin');
 const { SourceMap } = require('module');
 
@@ -13,6 +14,9 @@ module.exports = {
   plugins: [
     new CopyPlugin({
       patterns: [{from: "public"}],
+    }),
+    new MomentLocalesPlugin({
+      localesToKeep: [`es-us`],
     }),
   ],
   devServer: {
