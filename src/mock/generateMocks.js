@@ -1,5 +1,7 @@
 import { getRandomInteger, generateContent } from "../utils.js";
 
+export const genres = ["Comedy","Western","Sci-fi", "Animation", "Fantasy", "TV Series"];
+
 const mocksData = {
   // id: '',
   comments: [],
@@ -16,7 +18,7 @@ const mocksData = {
       country: ["Finland",],
     },
     //runtime: '',
-    genre: ["Comedy","Western",],
+    genre: genres,
     description: [
       "Lorem ipsum dolor sit amet.",
       "consectetur adipiscing elit.", "Cras aliquet varius magna",
@@ -41,6 +43,7 @@ const mocksData = {
 //   date: ["2019-05-11T16:12:32.554Z","2019-05-11T00:00:00.000Z",],
 //   emotion: ["smile", "sleeping", "puke", "angry"],
 // };
+
 
 const comments = [{
   id: '0',

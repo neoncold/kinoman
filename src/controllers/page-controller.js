@@ -10,6 +10,7 @@ import { removeComponent } from '../utils.js';
 import MovieController from './movie-controller.js';
 import { RENDER_CARD_COUNT } from '../config.js';
 
+
 /* 
 Заметки:
   0) попрактиковаться устанавливать положение окна после перерисовки
@@ -41,6 +42,8 @@ export default class PageController {
 
     const index = this._movieControllerList.findIndex((controller) => controller.film.id === oldFilmId)
     this.filmsArray = this.model.filmsList;
+    this.profileButton.cardsArray = this.model.filmsList;
+    this.profileButton.rerender();
     this._movieControllerList[index].update(newFilm);
 
   }
@@ -106,7 +109,7 @@ export default class PageController {
 
       // визуальное отображение активной кнопки
       this.mainSort.getElement().querySelector('.sort__button--active').classList.remove('sort__button--active');
-      clickedButton.classList.add('sort__button--active')
+      clickedButton.classList.add('sort__button--active');
 
       // назначение активного фильтра модели
       this.model.activeSortType = clickedButton.dataset.sortType;      
@@ -117,6 +120,7 @@ export default class PageController {
 
     // обработчик изменения типа фильтра или сортировки
     const filterAndSortHandler = () => {
+
       // отчистка контейнера фильмов перед рендером
       this.filmListContainer.innerHTML = '';
       // получение списка фильмов согласно сортировке
@@ -162,5 +166,15 @@ export default class PageController {
       this._movieControllerList.push(movieController);
       movieController.render(film);
     }
+  }
+
+  hide() {
+    this.mainSort.hide();
+    this.filmList.hide();
+  }
+
+  show() {
+    this.mainSort.show();
+    this.filmList.show();
   }
 }

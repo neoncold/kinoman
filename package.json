@@ -21,6 +21,8 @@
     "@babel/core": "7.19.3",
     "@babel/preset-env": "7.19.3",
     "babel-loader": "8.2.5",
+    "chart.js": "3.9.1",
+    "chartjs-plugin-datalabels": "2.1.0",
     "copy-webpack-plugin": "11.0.0",
     "eslint": "6.1.0",
     "eslint-config-htmlacademy": "0.5.2",

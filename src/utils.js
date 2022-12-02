@@ -35,9 +35,9 @@ const removeComponent = (element) => {
   element.removeElement();
 };
 
-const formatDuration = (minutes) => {
+const formatDuration = (minutes, pattern = 'H:mm') => {
   const ms = Math.floor(minutes * 60000 - 10800000)
-  return moment(ms).format('H:mm')
+  return moment(ms).format(pattern)
 };
 
 const formatDate = (date) => {
@@ -63,6 +63,23 @@ const SortTypes = {
   RATING: 'byRating',
 };
 
+const rankOfUser = (arr) => {
+  const count = arr.reduce((acc,curr) => 
+  curr.user_details.alreadyWatched ? ++acc : acc, 0);
+  let rank;
+  
+  count === 0 ? rank = "" :
+  count <= 10 ? rank = "novice" :
+  count <= 20 ? rank = "fan" : 
+                rank = "movie buff";
+    
+  return rank;
+};
+
+const totalGenreAmount = (films, genre) => {
+  return films.reduce((acc, film) => film.film_info.genre.includes(genre) ? ++acc : acc, 0)
+}
+
 
 
 export {
@@ -74,4 +91,6 @@ export {
   humanizeDate, 
   FilterTypes, 
   SortTypes,
+  rankOfUser,
+  totalGenreAmount,
 };

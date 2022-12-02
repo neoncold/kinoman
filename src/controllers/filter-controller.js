@@ -22,16 +22,14 @@ export default class FilterController {
       if (!clickedButton || clickedButton.classList.contains('main-navigation__item--active')) return;
 
       // внешнее отображение клика
-      const activeStyleButton = this.mainFilter.getElement().querySelector('.main-navigation__item--active');
-      activeStyleButton.classList.remove('main-navigation__item--active');
+      this.mainFilter.getElement().querySelector('.main-navigation__item--active')
+      .classList.remove('main-navigation__item--active');
       clickedButton.classList.add('main-navigation__item--active');
       
-      // клик по статистике
-      if (clickedButton.classList.contains('main-navigation__additional')) return;
-      
-      
       // смена типа активного фильтра
-      this.model.activeFilterType = clickedButton.dataset.filterType;
+      if (clickedButton.dataset.filterType) {
+        this.model.activeFilterType = clickedButton.dataset.filterType;
+      }
     }
     this.mainFilter.setClickHandler(mainFilterClickHandler);
 
@@ -45,5 +43,12 @@ export default class FilterController {
     this.mainFilter.cardsArray = this.model.filmsList;
     this.mainFilter.activeButton = this.model._activeFilterType;
     this.mainFilter.rerender();
+    // восстановление обработчика кнопки Stats
+    this.onSwapPages();
+  }
+
+  onSwapPages(handler = this.onSwapPagesHandler) {
+    this.onSwapPagesHandler = handler;
+    this.mainFilter.getElement().addEventListener('click', this.onSwapPagesHandler);
   }
 }
