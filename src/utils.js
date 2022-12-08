@@ -80,6 +80,11 @@ const totalGenreAmount = (films, genre) => {
   return films.reduce((acc, film) => film.film_info.genre.includes(genre) ? ++acc : acc, 0)
 }
 
+const createGenres = (genresArray) => {
+  return genresArray.map((genre) => {
+    return `<span class="film-card__genre">${genre}</span>`
+  }).join('\n');
+}
 
 
 export {
@@ -93,4 +98,5 @@ export {
   SortTypes,
   rankOfUser,
   totalGenreAmount,
+  createGenres
 };

@@ -4,7 +4,6 @@ import Chart from 'chart.js/auto';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { rankOfUser } from '../utils.js'
 import { totalGenreAmount } from "../utils.js";
-import { genres } from "../mock/generateMocks";
 
 
 
@@ -15,7 +14,7 @@ const createStatisticView = (films) => {
   const hours = Math.floor(totalMinutes / 60);
   const minutes = Math.floor(totalMinutes - (hours * 60));
 
-  return `<section class="statistic ${true ? 'visually-hidden' : ''}">
+  return `<section class="statistic visually-hidden">
   <p class="statistic__rank">
     Your rank
     <img class="statistic__img" src="images/bitmap@2x.png" alt="Avatar" width="35" height="35">
@@ -76,20 +75,32 @@ export default class StatisticView extends Abstract {
 
   render() {
     render(this, this.container);
-    this.renderDiag();
+    this.renderChart();
   }
+  
 
-  renderDiag() {
-    const genreFilms = genres.map((elem) => {
+  renderChart() {
+    const genreFilms = new Set(); 
+
+    // заполняем genreFilms. жанры.
+    for (let film of this.model.filmsList) {
+      if (film.user_details.alreadyWatched) {
+        for (let genre of film.film_info.genre) {
+            genreFilms.add(genre);
+        }
+      }
+    }
+
+    this.genreFilms = [...genreFilms].map((elem) => {
       return {
         genre: elem,
         amount: totalGenreAmount(this.model.filmsList.filter((film) => film.user_details.alreadyWatched), elem),
       }
     }).sort((a, b) => b.amount - a.amount)
-
-    this.genreFilms = genreFilms.slice(0, genreFilms.findIndex((genre) => genre.amount == 0))
-
-    this.getElement().querySelectorAll('.statistic__text-item .statistic__item-text')[2].innerHTML = this.genreFilms[0].genre;
+    
+    this.genreFilms = this.genreFilms.slice(0, this.genreFilms.findIndex((genre) => genre.amount == 0))
+    
+    this.getElement().querySelectorAll('.statistic__text-item .statistic__item-text')[2].innerHTML = this.genreFilms.length ? this.genreFilms[0].genre : 0;
 
     const BAR_HEIGHT = 50;
     const statisticCtx = this.getElement().querySelector(`.statistic__chart`);
@@ -154,6 +165,7 @@ export default class StatisticView extends Abstract {
       },
       plugins: [ChartDataLabels],
     });
+    
 
   }
 }

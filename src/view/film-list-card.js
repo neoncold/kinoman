@@ -1,8 +1,7 @@
 import { formatDuration } from "../utils";
 import Abstract from "./abstract";
 import moment from "moment";
-
-
+import { createGenres } from "../utils";
 
 const createFilmListCard = (card) => (
   `<article class="film-card">
@@ -11,9 +10,9 @@ const createFilmListCard = (card) => (
     <p class="film-card__info">
       <span class="film-card__year">${moment(card.film_info.release.date).format('YYYY')}</span>
       <span class="film-card__duration">${formatDuration(card.film_info.runtime)}</span>
-      <span class="film-card__genre">${card.film_info.genre}</span>
+      <span class="film-card__genre">${createGenres(card.film_info.genre)}</span>
     </p>
-    <img src="./images/posters/${card.film_info.poster}" alt="" class="film-card__poster">
+    <img src="${card.film_info.poster}" alt="" class="film-card__poster">
     <p class="film-card__description">${card.film_info.description.length > 140 ? card.film_info.description.slice(0,139) + "..." : card.film_info.description}</p>
     <a class="film-card__comments">${card.comments.length} comments</a>
     <form class="film-card__controls">
@@ -28,6 +27,7 @@ export default class FilmListCard extends Abstract {
   constructor(card) {
     super();
     this.card = card;
+    
   }
 
   getTemplate() {

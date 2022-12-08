@@ -8,7 +8,7 @@ import NewComment from "../view/comment";
 
 
 export default class MovieController extends Abstract {
-constructor(container, onDataChange, onViewChange, onDataCommentsChange) {
+constructor(container, onDataChange, onViewChange, onDataCommentsChange, api) {
   super();
   this._container = container;
   this._onDataChange = onDataChange;
@@ -16,6 +16,8 @@ constructor(container, onDataChange, onViewChange, onDataCommentsChange) {
   this.card = null;
   this.film = null;
   this.popup = null;
+  this.api = api;
+  this.comments = null;
 }
 
 setDefaultView() {
@@ -56,28 +58,35 @@ render(film) {
     const clickedButton = event.target.closest('.film-card__controls-item');
 
     if (!clickedButton) return;
-    
-    const details = this.film.user_details;
-    // визуальное изменение контролов карточки фильма
-    clickedButton.classList.toggle('film-card__controls-item--active')
 
-    this._onDataChange(this.film.id, Object.assign({}, this.film, {user_details: {
-      
+    const details = this.film.user_details;
+    const newFilm = Object.assign({}, this.film, {user_details: {
       watchedDate: this.film.user_details.watchedDate,
       inWatchedList: (clickedButton.classList.contains('film-card__controls-item--add-to-watchlist') ? !details.inWatchedList : details.inWatchedList),
       alreadyWatched: (clickedButton.classList.contains('film-card__controls-item--mark-as-watched') ? !details.alreadyWatched : details.alreadyWatched),
-      favorite: (clickedButton.classList.contains('film-card__controls-item--favorite') ? !details.favorite : details.favorite)}})
-    );
+      favorite: (clickedButton.classList.contains('film-card__controls-item--favorite') ? !details.favorite : details.favorite)}
+    })
+
+    this.api.updateFilm(newFilm).then((film) => {
+      this._onDataChange(this.film.id, film);
+    }).catch((err) => alert(err))
   };
 
   //Обработчик клика по кнопкам контрола Попапа
   const popupControlClickHandler = () => {
     const controlButtons = this.popup.getElement().querySelectorAll('.film-details__control-input');
-    this._onDataChange(this.film.id, Object.assign({}, this.film, {user_details: {
+    const newFilm = Object.assign({}, this.film, {user_details: {
       watchedDate: this.film.user_details.watchedDate,
       inWatchedList: controlButtons[0].checked,
       alreadyWatched: controlButtons[1].checked,
-      favorite: controlButtons[2].checked}}));
+      favorite: controlButtons[2].checked}}
+    );
+      this.api.updateFilm(newFilm).then((film) => {
+        this._onDataChange(this.film.id, film);
+      }).catch((err) => {
+        this.popup.rerender();
+        alert(err);
+      })
   }
 
   //Обработчик клика по кнопкам Emoji попапа
@@ -93,11 +102,35 @@ render(film) {
   }
 
   const typpingHandler = () => {
+    if (!this.popup.emoji) {
+      alert('Выберите эмоцию');
+      return
+    };
     if (event.key == 'Enter' && event.target.value) {
       event.preventDefault();
+      this.popup.getElement().classList.remove('shake')
+      const target = event.target;
+      // заблокировать форму 
+      target.setAttribute('disabled', 'disabled');
       this.popup.commentMessage = event.target.value;
-      console.log(this.popup.commentMessage)
-      event.target.value = '';
+      const todayDate = new Date(Date.now());
+      this.api.addComment(this.film.id, 
+        {
+          "comment": `${event.target.value}`,
+          "date": `${todayDate.toISOString()}`,
+          "emotion": `${this.popup.emoji}`,
+         }
+      ).then((response) => {
+        this.film.comments = response.comments.map((comment) => comment.id);
+        this.comments = '';
+        this.popup.emoji = '';
+        this.update(this.film)
+      }).catch((err) => {
+        // разблокировать форму
+        this.popup.getElement().classList.add('shake');
+        target.removeAttribute('disabled');
+        alert(err);
+      })
     }
     return
   }
@@ -117,24 +150,48 @@ render(film) {
 
 // функция по отрисовке комментов
 renderComments() {
-  const container = this.popup.getElement().querySelector('.film-details__comments-list');
-  this.film.comments.forEach((currentComment) => {
+  this.commentsContainer = this.popup.getElement().querySelector('.film-details__comments-list');
+
+  if (this.comments) {
+    this.createComments();
+  } else {
+    this.api.getComments(this.film.id).then((comments) => {
+      this.comments = comments;
+      this.createComments();
+      }).catch((err) => {
+        alert('Ошибка загрузки комментариев');
+      })
+  }
+}
+
+createComments() {
+  this.comments.forEach((currentComment) => {
     // создание экземпляра комментария
     const newComment = new NewComment(currentComment);
     // создание обработчика удаления коментария
     const onDeleteButtonClickHandler = () => {
-    this._onDataChange(this.film.id, Object.assign({}, this.film, {
-      comments: this.film.comments.filter((elem) => !(elem.id == newComment.comment.id))
-    }));
-    removeComponent(newComment);
-    };
+    // индикация удалени комментария и блокировка повторной отправки
+    event.target.innerHTML = 'Deleting...';
+    event.target.setAttribute('disabled', 'disabled');
+
+    // запрос за удаление комментария
+    this.api.deleteComment(currentComment.id)
+    .then(() => {
+      const newFilm = Object.assign({}, this.film, {comments: this.film.comments.filter((elem) => elem != currentComment.id)})
+      this.comments = this.comments.filter((comment) => comment.id != currentComment.id);
+      this._onDataChange(this.film.id, newFilm);
+      removeComponent(newComment);
+    }).catch((err) => {
+      newComment.rerender();
+      alert(err);
+    })};
     // Назначение обработчика
     newComment.onDeleteButtonClick(onDeleteButtonClickHandler);
-    render(newComment, container);
-  })
+    render(newComment, this.commentsContainer);
+  });
 }
 
-update(newFilm) {
+update(newFilm = this.film) {
   this.film = newFilm;
   this.card.card = newFilm;
   

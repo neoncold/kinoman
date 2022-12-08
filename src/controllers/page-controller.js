@@ -19,7 +19,7 @@ import { RENDER_CARD_COUNT } from '../config.js';
 */
 
 export default class PageController {
-  constructor(renderPlace, model) {
+  constructor(renderPlace, model, api) {
     this.model = model;
     this._onDataChange = this._onDataChange.bind(this);
     this._onViewChange = this._onViewChange.bind(this);
@@ -27,10 +27,10 @@ export default class PageController {
     this.renderPlace = renderPlace;
     this.filmList = new FilmList();
     this.filmListContainer = this.filmList.getElement().querySelector('.films-list__container');
-    this.filmListLoading = new FilmListLoading();
     this.filmListNoData = new FilmListNoData();
     this.showMoreButton = new ShowMoreButton();
     this.mainSort = new MainSort();
+    this.api = api;
   }
 
   _onViewChange() {
@@ -38,14 +38,14 @@ export default class PageController {
   }
 
   _onDataChange(oldFilmId, newFilm) {
+    const index = this._movieControllerList.findIndex((controller) => controller.film.id === oldFilmId);
+    // обновляем данные модели
     this.model.updateFilm(oldFilmId, newFilm);
-
-    const index = this._movieControllerList.findIndex((controller) => controller.film.id === oldFilmId)
+    // Обновляем локальные данные, профиль, контроллер фильма,
+    // карточку и попап с комментами
     this.filmsArray = this.model.filmsList;
-    this.profileButton.cardsArray = this.model.filmsList;
-    this.profileButton.rerender();
+    this.profileButton.update(this.model.filmsList);
     this._movieControllerList[index].update(newFilm);
-
   }
 
   render = () => {
@@ -64,12 +64,9 @@ export default class PageController {
     render(this.mainSort, this.renderPlace);
     // рендер контейнера для карточек фильмов
     render(this.filmList, this.renderPlace);
-    render(this.filmListLoading, this.filmListContainer, 'beforebegin');
 
     // удаление индикации загрузки если есть данные и рендер сообщения об отсутствии фильмов если нет данных
-    if (this.filmsArray.length) {
-      removeComponent(this.filmListLoading);
-    } else {
+    if (!this.filmsArray.length) {
       // Если нет фильмов
       removeComponent(this.filmListLoading);
       render(this.filmListNoData, this.filmListContainer, 'beforebegin');
@@ -124,10 +121,10 @@ export default class PageController {
       // отчистка контейнера фильмов перед рендером
       this.filmListContainer.innerHTML = '';
       // получение списка фильмов согласно сортировке
-      const filteredAndSortedArray = this.model.getFilms();
+      this.filmsArray = this.model.getFilms();
       
       // если фильмы отсутствуют
-      if (!filteredAndSortedArray.length) {
+      if (!this.filmsArray.length) {
         // заглушка
         render(this.filmListNoData, this.filmListContainer, 'beforebegin');
         return;
@@ -139,14 +136,13 @@ export default class PageController {
       this._movieControllerList = [];
 
       // рендер отсортированных фильмов
-      this.renderFilms(filteredAndSortedArray, this.filmListContainer);
+      this.renderFilms(this.filmsArray, this.filmListContainer);
 
       // рендер кнопки ShowMore
-      if (!this.showMoreButton._element && filteredAndSortedArray.length > RENDER_CARD_COUNT) {
+      if (!this.showMoreButton._element && this.filmsArray.length > RENDER_CARD_COUNT) {
         render(this.showMoreButton, this.filmListContainer, 'afterend');
         this.showMoreButton.recoverListeners();
-        
-      } else if (filteredAndSortedArray.length <= RENDER_CARD_COUNT) {
+      } else if (this.filmsArray.length <= RENDER_CARD_COUNT) {
         removeComponent(this.showMoreButton)
       }
 
@@ -162,7 +158,7 @@ export default class PageController {
     const amountToRender = existingAmount + Math.min(RENDER_CARD_COUNT, (filmsArray.length - existingAmount))
     const films = filmsArray.slice(existingAmount, amountToRender)
     for (const film of films ) {
-      const movieController = new MovieController(container, this._onDataChange, this._onViewChange, this._onDataCommentsChange);
+      const movieController = new MovieController(container, this._onDataChange, this._onViewChange, this._onDataCommentsChange, this.api);
       this._movieControllerList.push(movieController);
       movieController.render(film);
     }

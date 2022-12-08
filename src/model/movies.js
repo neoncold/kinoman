@@ -3,16 +3,18 @@ import { SortTypes } from "../utils";
 
 
 export default class Movies {
-  constructor() {
+  constructor(filmsList) {
     this._activeFilterType = FilterTypes.DEFAULT;
     this._activeSortType = SortTypes.DEFAULT;
-    this._filmsList = null;
-    this._filterAndSortHandler = null;
+    this._filmsList = filmsList;
+    this._filterAndSortHandler = () => {return};
     this._updateFilterHandler = null;
   }
 
   getFilms() {
     let films = this._filmsList.slice();
+    
+    if (!this._filmsList.length) return films;
 
     // Фильтрация по активному типу фильтра и сортировка
     switch(this._activeFilterType) {

@@ -17,4 +17,8 @@ export default class ProfileButton extends Abstract {
   getTemplate() {
     return createProfileButton(this.cardsArray);
   }
+  update(films) {
+    this.cardsArray = films;
+    this.rerender();
+  }
 };

@@ -1,4 +1,4 @@
-import { formatDuration, formatDate, humanizeDate } from "../utils.js"
+import { formatDuration, formatDate, humanizeDate, createGenres} from "../utils.js"
 import Abstract from "./abstract";
 
 
@@ -12,12 +12,6 @@ export default class PopupComponent extends Abstract{
   }
 
 
-  getGenres(genres) {
-    return genres.split(" ").map((elem) => 
-    `<span class="film-details__genre">${elem}</span>`)
-    .join(`\n`);
-  }
-
   getTemplate() {
     const cardData = this.cardData;
     return (
@@ -29,7 +23,7 @@ export default class PopupComponent extends Abstract{
       </div>
       <div class="film-details__info-wrap">
         <div class="film-details__poster">
-          <img class="film-details__poster-img" src="./images/posters/${cardData.film_info.poster}" alt="">
+          <img class="film-details__poster-img" src="${cardData.film_info.poster}" alt="">
   
           <p class="film-details__age">${cardData.film_info.age}+</p>
         </div>
@@ -53,11 +47,11 @@ export default class PopupComponent extends Abstract{
             </tr>
             <tr class="film-details__row">
               <td class="film-details__term">Writers</td>
-              <td class="film-details__cell">${cardData.film_info.writers}</td>
+              <td class="film-details__cell">${cardData.film_info.writers.join(', ')}</td>
             </tr>
             <tr class="film-details__row">
               <td class="film-details__term">Actors</td>
-              <td class="film-details__cell">${cardData.film_info.actors}</td>
+              <td class="film-details__cell">${cardData.film_info.actors.join(', ')}</td>
             </tr>
             <tr class="film-details__row">
               <td class="film-details__term">Release Date</td>
@@ -74,7 +68,7 @@ export default class PopupComponent extends Abstract{
             <tr class="film-details__row">
               <td class="film-details__term">Genres</td>
               <td class="film-details__cell">
-                ${this.getGenres(this.cardData.film_info.genre)}
+                ${createGenres(cardData.film_info.genre)}
               </td>
             </tr>
           </table>
