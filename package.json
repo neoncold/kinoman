@@ -13,6 +13,7 @@
   "scripts": {
     "build": "webpack --mode production",
     "eslint": "eslint src/**/*.js",
+    "eslint:fix": "eslint src public/sw.js --fix",
     "test": "npm run eslint",
     "start": "webpack serve --mode development --open"
   },
