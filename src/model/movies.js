@@ -38,7 +38,6 @@ export default class Movies {
   }
 
   
-
   set filmsList(filmsList) {
     this._filmsList = filmsList;
   }

@@ -12,6 +12,8 @@ const SuccessHTTPStatusRange = {
   MAX: 299,
 };
 
+const CONTENT_TYPE_HEADER = {'Content-Type': 'application/json'};
+
 export default class Api {
   constructor(authorization, url) {
     this.url = url;
@@ -41,6 +43,20 @@ export default class Api {
     throw err;
   }
 
+  syncApplication(films) {
+    return this._load({
+      url: `movies/sync`,
+      method: Methods.POST,
+      headers: new Headers(CONTENT_TYPE_HEADER),
+      body: JSON.stringify(films.map((film) => this.adapter.stringify(film))),
+    })
+      .then((response) => response.json())
+      .then(({'updated': films}) => {
+        console.log(films)
+        return films;
+      })
+  }
+
   _load({url, method = Methods.GET, body = null, headers = new Headers()}) {
     headers.append('Authorization', this._authorization);
 
@@ -62,7 +78,7 @@ export default class Api {
     return this._load({
       url: `movies/${film.id}`, 
       method: Methods.PUT, 
-      headers: new Headers({'Content-Type': 'application/json'}), 
+      headers: new Headers(CONTENT_TYPE_HEADER), 
       body: Api.toJSON(this.adapter.stringify(film))})
     .then(Api.fromJSON).then((film) => this.adapter.parse(film))
   }
@@ -71,7 +87,7 @@ export default class Api {
     return this._load({
       url: `comments/${filmId}`,
       method: Methods.POST,
-      headers: new Headers({'Content-Type': 'application/json'}),
+      headers: new Headers(CONTENT_TYPE_HEADER),
       body: JSON.stringify(comment),
   })
     .then(Api.fromJSON);

@@ -85,7 +85,7 @@ render(film) {
         this._onDataChange(this.film.id, film);
       }).catch((err) => {
         this.popup.rerender();
-        alert(err);
+        console.log(err);
       })
   }
 
@@ -170,24 +170,24 @@ createComments() {
     const newComment = new NewComment(currentComment);
     // создание обработчика удаления коментария
     const onDeleteButtonClickHandler = () => {
-    // индикация удалени комментария и блокировка повторной отправки
-    event.target.innerHTML = 'Deleting...';
-    event.target.setAttribute('disabled', 'disabled');
+      // индикация удалени комментария и блокировка повторной отправки
+      event.target.innerHTML = 'Deleting...';
+      event.target.setAttribute('disabled', 'disabled');
 
-    // запрос за удаление комментария
-    this.api.deleteComment(currentComment.id)
-    .then(() => {
-      const newFilm = Object.assign({}, this.film, {comments: this.film.comments.filter((elem) => elem != currentComment.id)})
-      this.comments = this.comments.filter((comment) => comment.id != currentComment.id);
-      this._onDataChange(this.film.id, newFilm);
-      removeComponent(newComment);
-    }).catch((err) => {
-      newComment.rerender();
-      alert(err);
-    })};
-    // Назначение обработчика
-    newComment.onDeleteButtonClick(onDeleteButtonClickHandler);
-    render(newComment, this.commentsContainer);
+      // запрос за удаление комментария
+      this.api.deleteComment(currentComment.id)
+      .then(() => {
+        const newFilm = Object.assign({}, this.film, {comments: this.film.comments.filter((elem) => elem != currentComment.id)})
+        this.comments = this.comments.filter((comment) => comment.id != currentComment.id);
+        this._onDataChange(this.film.id, newFilm);
+        removeComponent(newComment);
+      }).catch((err) => {
+        newComment.rerender();
+        alert(err);
+      })};
+      // Назначение обработчика
+      newComment.onDeleteButtonClick(onDeleteButtonClickHandler);
+      render(newComment, this.commentsContainer);
   });
 }
 
